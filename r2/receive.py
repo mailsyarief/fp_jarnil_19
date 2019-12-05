@@ -3,11 +3,14 @@ import socket
 import struct
 import sys
 import pickle
+import ast
 
 #perak surabaya
 port = 10002
 lat_to = -7.228549
 long_to = 112.731391
+
+pesanDikirim = []
 
 def sendPosition():
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -22,40 +25,75 @@ def sendPosition():
     print 'sukses mengirim lokasi !'
     return client.close()
 
-
 def multicast():
     multicast_group = '224.3.29.71'
     server_address = ('', port)
-
-    # Create the socket
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
-    # Bind to the server address
     sock.bind(server_address)
-
-    # Tell the operating system to add the socket to the multicast group
-    # on all interfaces.
     group = socket.inet_aton(multicast_group)
     mreq = struct.pack('4sL', group, socket.INADDR_ANY)
     sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
-
-    # Receive/respond loop
     while True:
         print >>sys.stderr, '\nwaiting to receive message'
         data, address = sock.recvfrom(1024)
         
         print >>sys.stderr, 'received %s bytes from %s' % (len(data), address)
-        print >>sys.stderr, data
+        data = ast.literal_eval(data)
+
+        pesan = data[0]
+        print 'isi pesan : ' + pesan
+
+        if not data[1]:
+            endReceiver()
+        
+        rute = data[1]
 
         print >>sys.stderr, 'sending acknowledgement to', address
         sock.sendto('ack', address)
 
+        print 'pengiriman selanjutnya ke port ' + str(rute[0][0])
+        sendData(pesan,rute)
+
+def endReceiver():
+    print 'ini adalah rute DTN terakhir'
+    exit()
+
+def sendData(pesan,rute):
+    p = rute[0][0]
+    del rute[0]
+    pesanDikirim.insert(0,pesan)
+    pesanDikirim.insert(1,rute)
+    hasil = send(pesanDikirim, p)
+    while(hasil == 0):
+        hasil = send(pesanDikirim, p)
+    print ('pengiriman berhasil ke port ' + str(p))
+
+def send(message,port):
+    multicast_group = ('224.3.29.71', port)
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.settimeout(0.2)
+    ttl = struct.pack('b', 1)
+    sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, ttl)
+    print ('mengirimkan pesan ke port ' + str(port))
+    sock.sendto(str(message), multicast_group)
+    while True:
+        try:
+            sock.recvfrom(16)
+        except:
+            print ('tidak ada respon dari port %s' % port)
+            sock.close()
+            return 0
+        else:
+            print ('pesan berhasil dikirim')
+            sock.close()
+            return 1
+
 if __name__ == '__main__':
-    print "receiver 1, port " + str(port) + ": "
+    print "receiver port " + str(port) + ": "
     print "=============="
     while 1:
         print "1. mengirimkan posisi ke sender"
-        print "2. receive data"
+        print "2. menerima data dan mengirimkan ke alamat selanjutnya"
         print "3. keluar"
         inputan = raw_input('Pilihan > ')
         if(inputan == '1'):

@@ -14,6 +14,7 @@ from geopy.distance import geodesic
 lat_from = -7.294080
 long_from = 112.801598
 
+pesanDikirim = []
 portDistance = []
 
 def getLatLong():
@@ -38,12 +39,9 @@ def sendDataInput():
     message = raw_input("input pesan > ")
     p = portDistance[0][0]
     del portDistance[0]
-    pesanDikirim = {
-        'pesan' : message,
-        'rute' : portDistance
-    }
-    dump = pickle.dumps(pesanDikirim)
-    hasil = send(dump, p)
+    pesanDikirim.insert(0,message)
+    pesanDikirim.insert(1,portDistance)
+    hasil = send(pesanDikirim, p)
     while(hasil == 0):
         hasil = send(pesanDikirim, p)
     print ('pengiriman berhasil ke port ' + str(p))
