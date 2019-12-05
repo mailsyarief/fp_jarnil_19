@@ -55,16 +55,16 @@ def send(message,port):
     ttl = struct.pack('b', 1)
     sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, ttl)
     print ('mengirimkan pesan ke port ' + str(port))
-    sock.sendto(message, multicast_group)   
+    sock.sendto(str(message), multicast_group)
     while True:
         try:
-            data, server = sock.recvfrom(512)
+            sock.recvfrom(16)
         except:
             print ('tidak ada respon dari port %s' % port)
             sock.close()
             return 0
         else:
-            print ('menerima "%s" dari %s' % (data, server))
+            print ('pesan berhasil dikirim')
             sock.close()
             return 1
 
