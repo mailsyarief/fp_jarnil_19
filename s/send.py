@@ -5,11 +5,16 @@ import sys
 import os
 import json
 import pickle
+import glob
+import numpy
+import operator
 from geopy.distance import geodesic
 
+#keputih sukolilo
 lat_from = -7.294080
-long_from = 112.801600
-port = list()
+long_from = 112.801598
+
+portDistance = []
 
 def getLatLong():
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -47,7 +52,7 @@ def send(message,port):
     print ('mengirimkan pesan berisi : %s' % message)
     pesan = {
         'pesan' : message,
-        'urutan' : port
+        'urutan' : portDistance
     }
     sock.sendto(pickle.dumps(pesan), multicast_group)   
 
@@ -67,13 +72,22 @@ def send(message,port):
 def getDistance(lat_to,long_to):
     coords_1 = (lat_from, long_from)
     coords_2 = (lat_to, long_to)
-    return geodesic(coords_1, coords_2).miles
+    return geodesic(coords_1, coords_2).km
 
 def writeDistance(port,distance):
     file = open('log/'+str(port)+".txt","w") 
     file.writelines(str(distance))
     file.close()
 
+def getUrutan():
+    path = 'log/'
+    for filename in glob.glob(os.path.join(path, '*.txt')):
+        file_open = open(filename, 'r')
+        nama_file_temp = int(filename[4:9])
+        jarak_temp = float(file_open.read())
+        portDistance.append([nama_file_temp,jarak_temp])
+    return sorted(portDistance, key=operator.itemgetter(1), reverse=False)
+    
 if __name__ == '__main__':
     print ("sender multicast dtn")
     while 1:
@@ -81,16 +95,13 @@ if __name__ == '__main__':
         print ("2. mengurutkan urutan pengiriman ke receiver")
         print ("3. menjalankan pengiriman data")
         print ("4. keluar")
-        print ("5. lihat port receiver yang tersedia")
         pilihan = raw_input("Pilihan > ")
         if(pilihan == '1'):
             getLatLong()
         elif(pilihan == '2'):
-            print 'pilihan 2'
+            ngurut = getUrutan()
+            print ngurut
         elif(pilihan == '3'):
-            print 'pilihan 3'
+            print('pilihan 3')
         elif(pilihan == '4'):
             exit()
-        elif(pilihan == '5'):
-            for x in port:
-                print(x)

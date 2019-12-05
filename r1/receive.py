@@ -4,9 +4,10 @@ import struct
 import sys
 import pickle
 
+#mulyosari surabaya
 port = 10001
 lat_to = -7.265441
-long_to = 112.797662
+long_to = 112.797661
 
 def sendPosition():
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

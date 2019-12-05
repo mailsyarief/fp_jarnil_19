@@ -4,9 +4,10 @@ import struct
 import sys
 import pickle
 
+#gresik
 port = 10003
-lat_to = -7.265441
-long_to = 112.797662
+lat_to = -7.155029
+long_to = 112.572189
 
 def sendPosition():
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
