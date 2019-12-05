@@ -8,6 +8,7 @@ import pickle
 port = 10001
 lat_to = -7.265441
 long_to = 112.797661
+dataReceive = []
 
 def sendPosition():
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -21,7 +22,6 @@ def sendPosition():
     client.send(pickle.dumps(data))
     print 'sukses mengirim lokasi !'
     return client.close()
-
 
 def multicast():
     multicast_group = '224.3.29.71'

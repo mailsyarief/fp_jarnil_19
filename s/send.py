@@ -36,11 +36,17 @@ def getLatLong():
 
 def sendDataInput():
     message = raw_input("input pesan > ")
-    for p in port:
-        hasil = send(message, p)
-        while(hasil == 0):
-            hasil = send(message, p)
-    print ('pengiriman berhasil')
+    p = portDistance[0][0]
+    del portDistance[0]
+    pesanDikirim = {
+        'pesan' : message,
+        'rute' : portDistance
+    }
+    dump = pickle.dumps(pesanDikirim)
+    hasil = send(dump, p)
+    while(hasil == 0):
+        hasil = send(pesanDikirim, p)
+    print ('pengiriman berhasil ke port ' + str(p))
 
 def send(message,port):
     multicast_group = ('224.3.29.71', port)
@@ -48,17 +54,11 @@ def send(message,port):
     sock.settimeout(0.2)
     ttl = struct.pack('b', 1)
     sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, ttl)
-
-    print ('mengirimkan pesan berisi : %s' % message)
-    pesan = {
-        'pesan' : message,
-        'urutan' : portDistance
-    }
-    sock.sendto(pickle.dumps(pesan), multicast_group)   
-
+    print ('mengirimkan pesan ke port ' + str(port))
+    sock.sendto(message, multicast_group)   
     while True:
         try:
-            data, server = sock.recvfrom(16)
+            data, server = sock.recvfrom(512)
         except:
             print ('tidak ada respon dari port %s' % port)
             sock.close()
@@ -102,6 +102,6 @@ if __name__ == '__main__':
             ngurut = getUrutan()
             print ngurut
         elif(pilihan == '3'):
-            print('pilihan 3')
+            sendDataInput()
         elif(pilihan == '4'):
             exit()
