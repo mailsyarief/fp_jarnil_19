@@ -8,6 +8,8 @@ import pickle
 import glob
 import numpy
 import operator
+import time
+import copy
 from geopy.distance import geodesic
 
 #keputih sukolilo
@@ -16,6 +18,7 @@ long_from = 112.801598
 
 pesanDikirim = []
 portDistance = []
+portDistance_temp = []
 
 def getLatLong():
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -39,8 +42,13 @@ def sendDataInput():
     message = raw_input("input pesan > ")
     p = portDistance[0][0]
     del portDistance[0]
+
     pesanDikirim.insert(0,message)
     pesanDikirim.insert(1,portDistance)
+    pesanDikirim.insert(2,0)
+    pesanDikirim.insert(3,time.time())
+    pesanDikirim.insert(4,0)
+
     hasil = send(pesanDikirim, p)
     while(hasil == 0):
         hasil = send(pesanDikirim, p)
@@ -83,8 +91,8 @@ def getUrutan():
         file_open = open(filename, 'r')
         nama_file_temp = int(filename[4:9])
         jarak_temp = float(file_open.read())
-        portDistance.append([nama_file_temp,jarak_temp])
-    return sorted(portDistance, key=operator.itemgetter(1), reverse=False)
+        portDistance_temp.append([nama_file_temp,jarak_temp])
+    return sorted(portDistance_temp, key=operator.itemgetter(1), reverse=False)
     
 if __name__ == '__main__':
     print ("sender multicast dtn")
@@ -97,8 +105,8 @@ if __name__ == '__main__':
         if(pilihan == '1'):
             getLatLong()
         elif(pilihan == '2'):
-            ngurut = getUrutan()
-            print ngurut
+            portDistance = copy.deepcopy(getUrutan())
+            print portDistance
         elif(pilihan == '3'):
             sendDataInput()
         elif(pilihan == '4'):
