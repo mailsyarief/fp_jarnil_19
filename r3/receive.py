@@ -13,7 +13,7 @@ long_to = 112.797661
 
 port = 10003
 limit_time = 30
-hop_limit = 5
+hop_limit = 1
 pesanDikirim = []
 
 def sendPosition():
@@ -46,33 +46,34 @@ def multicast():
 
         pesan = data[0]
         print 'isi pesan : ' + pesan
-
-        if not data[1]:
-            data[2] = data[2] + 1
-            sock.sendto('ack', address)
-            print 'ini adalah rute DTN terakhir'
-            print 'durasi pengiriman pesan : ' + str(data[4])
-            print 'jumlah hop : ' + str(data[2])
-            exit()
         
         rute = data[1]
-        hop = data[2] + 1
 
-        if(hop > hop_limit):
-            print 'hop telah melebihi limit'
-            exit()
+        hop = data[2] + 1
         
         getSecond = time.time() - data[3]
         timestamp = time.time()
 
         duration = data[4] + getSecond
 
+        print >>sys.stderr, 'sending acknowledgement to', address
+        sock.sendto('ack', address)
+
         if(getSecond > limit_time):
             print 'telah melebihi limit waktu'
             exit()
+        
+        if(data[2] > hop_limit):
+            print 'jumlah hop : ' + str(hop)
+            print 'hop telah melebihi limit'
+            exit()
 
-        print >>sys.stderr, 'sending acknowledgement to', address
-        sock.sendto('ack', address)
+        if not data[1]:
+            sock.sendto('ack', address)
+            print 'ini adalah rute DTN terakhir'
+            print 'durasi pengiriman pesan : ' + str(data[4])
+            print 'jumlah hop : ' + str(data[2])
+            exit()
 
         print 'pengiriman selanjutnya ke port ' + str(rute[0][0])
         sendData(pesan,rute,hop,timestamp,duration)

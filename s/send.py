@@ -45,9 +45,11 @@ def sendDataInput():
 
     pesanDikirim.insert(0,message)
     pesanDikirim.insert(1,portDistance)
+    # hop
     pesanDikirim.insert(2,0)
     pesanDikirim.insert(3,time.time())
-    pesanDikirim.insert(4,1)
+    # durasi kirim
+    pesanDikirim.insert(4,0)
 
     print ('mengirimkan pesan ke port ' + str(p))
     hasil = send(pesanDikirim, p)
@@ -66,7 +68,6 @@ def send(message,port):
         try:
             sock.recvfrom(16)
         except:
-            print ('tidak ada respon dari port %s' % port)
             sock.close()
             return 0
         else:
