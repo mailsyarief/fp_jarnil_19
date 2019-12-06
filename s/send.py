@@ -47,8 +47,9 @@ def sendDataInput():
     pesanDikirim.insert(1,portDistance)
     pesanDikirim.insert(2,0)
     pesanDikirim.insert(3,time.time())
-    pesanDikirim.insert(4,0)
+    pesanDikirim.insert(4,1)
 
+    print ('mengirimkan pesan ke port ' + str(p))
     hasil = send(pesanDikirim, p)
     while(hasil == 0):
         hasil = send(pesanDikirim, p)
@@ -60,7 +61,6 @@ def send(message,port):
     sock.settimeout(0.2)
     ttl = struct.pack('b', 1)
     sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, ttl)
-    print ('mengirimkan pesan ke port ' + str(port))
     sock.sendto(str(message), multicast_group)
     while True:
         try:
