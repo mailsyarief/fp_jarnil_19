@@ -45,11 +45,18 @@ def multicast():
 
         pesan = data[0]
         print 'isi pesan : ' + pesan
+        print data
+
 
         rute = data[1]
 
         hop = data[2] + 1
         
+        if(data[2] > hop_limit):
+            print 'jumlah hop : ' + str(hop)
+            print 'hop telah melebihi limit'
+            exit()
+
         getSecond = time.time() - data[3]
         timestamp = time.time()
 
@@ -61,11 +68,6 @@ def multicast():
 
         if(getSecond > limit_time):
             print 'telah melebihi limit waktu'
-            exit()
-        
-        if(data[2] > hop_limit):
-            print 'jumlah hop : ' + str(hop)
-            print 'hop telah melebihi limit'
             exit()
 
         if not data[1]:
