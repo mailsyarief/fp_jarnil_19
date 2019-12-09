@@ -22,7 +22,7 @@ portDistance_temp = []
 
 def getLatLong():
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    ip = "0.0.0.0"
+    ip = "192.168.43.150"
     port = 35
     server.bind((ip, port))
     server.listen(5)
@@ -47,6 +47,7 @@ def sendDataInput():
     pesanDikirim.insert(1,portDistance)
     # hop
     pesanDikirim.insert(2,0)
+
     pesanDikirim.insert(3,time.time())
     # durasi kirim
     pesanDikirim.insert(4,0)
@@ -63,6 +64,9 @@ def send(message,port):
     sock.settimeout(0.2)
     ttl = struct.pack('b', 1)
     sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, ttl)
+   
+    # Enable broadcasting mode
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
     sock.sendto(str(message), multicast_group)
     while True:
         try:
@@ -110,5 +114,7 @@ if __name__ == '__main__':
             print portDistance
         elif(pilihan == '3'):
             sendDataInput()
+            filter(lambda a: a != 2, portDistance)
+            filter(lambda a: a != 2, portDistance_temp)
         elif(pilihan == '4'):
             exit()
